@@ -11,7 +11,7 @@ def make_shares_database(TOKEN: str) -> pd.DataFrame:
     shares_dataframe = pd.DataFrame(columns=TARGET_COLUMNS)
     for i, share in enumerate(shares):
         shares_dataframe.loc[i] = pd.Series(
-            (share.figi, share.ticker, share.lot, share.name, share.sector), TARGET_COLUMNS
+            (share.figi, share.ticker, share.lot, share.name, share.sector,share.first_1day_candle_date), TARGET_COLUMNS
         )
     
     return shares_dataframe
