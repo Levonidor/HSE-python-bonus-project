@@ -4,6 +4,8 @@ import pandas as pd
 from tinkoff.invest import CandleInterval, Client, InstrumentStatus
 from tinkoff.invest.utils import now
 from .token_import import TOKEN
+from time import sleep
+import time
 
 def make_shares_database() -> pd.DataFrame:
     with Client(TOKEN) as client:
@@ -12,14 +14,15 @@ def make_shares_database() -> pd.DataFrame:
     shares_dataframe = pd.DataFrame(columns=TARGET_COLUMNS)
     for i, share in enumerate(shares):
         shares_dataframe.loc[i] = pd.Series(
-            (share.figi, share.ticker, share.lot, share.name, share.sector,share.first_1day_candle_date), TARGET_COLUMNS
+            (share.figi, share.ticker, share.lot, share.name, share.sector,share.first_1day_candle_date.year,0,0,0), TARGET_COLUMNS
         )
     
     return shares_dataframe
 
-def volume_analytic(figi_: str) -> str:
+def volume_analytic(figi_: str) -> float:
     share_volume = []
     with Client(TOKEN) as client:
+        sleep(0.5)
         for candle in client.get_all_candles(
             figi=figi_,
             from_=now() - timedelta(days=(365*5)),
@@ -38,3 +41,44 @@ def volume_analytic(figi_: str) -> str:
         for i in range(1,len(all_periods)):
             procent_all_periods.append((all_periods[i]-all_periods[i-1])/(all_periods[i-1]/100))
     return sum(procent_all_periods)/len(procent_all_periods)
+
+def price_tags(st):
+    with Client(TOKEN) as client:
+        sp = []
+        for candle in client.get_all_candles(
+            figi= st,
+            from_=now() - timedelta(days=365 * 5),
+            interval=CandleInterval.CANDLE_INTERVAL_DAY,
+        ):
+            sp.append(candle.close.units)
+    return sp
+
+# Твоя аналитика должна брать на вход figi и возвращать 1 значение анализа, 
+# в main мы будем вызывать эту функцию, чтобы в database добавить в столбик эти данные. 
+# А уже после добавления для всех акций значения анализа, мы будем нормализировать данные.
+def price_analytics(lst: list):
+    count = 0
+    lst1 = lst.copy()
+    for i in range(len(lst) - 1):
+        if lst[i] >= lst[i+1]:
+            count += 1
+            
+    return {
+        'name': '',
+        'average': (sum(lst) / len(lst) / lst[0] * 100) - 100,
+        'trend': count / len(lst) * 100,
+    }
+
+# Нормализацию надо прописать будет в общем виде, чтобы потом ее можно было вызвать для любого столбика анализа, 
+# так чтобы значение варьировалось от 0 до 1. 
+# То есть на вход оно должно получать (Database, номер столбика/название для нормализации) и возвращать Database, но с нормализованным столбиком.
+def normalize_price(lst: list[dict]):
+    lst1 = []
+    for el in lst:
+        lst1.append((el['average'], el['trend'], el['name']))
+    lst1 = sorted(lst1, key=lambda x: (-x[1], -x[0], x[2]))
+    return lst1
+
+
+def first_day_analytic(year: int) -> int:
+    return int(time.localtime().tm_year)-year
