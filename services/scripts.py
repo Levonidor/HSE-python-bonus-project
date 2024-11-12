@@ -42,7 +42,7 @@ def volume_analytic(figi_: str) -> float:
             procent_all_periods.append((all_periods[i]-all_periods[i-1])/(all_periods[i-1]/100))
     return sum(procent_all_periods)/len(procent_all_periods)
 
-def price_tags(st):
+def price_analytics(st) -> float():
     with Client(TOKEN) as client:
         sp = []
         for candle in client.get_all_candles(
@@ -51,33 +51,25 @@ def price_tags(st):
             interval=CandleInterval.CANDLE_INTERVAL_DAY,
         ):
             sp.append(candle.close.units)
-    return sp
+    count = 0
+    for i in range(len(sp) - 1):
+        if sp[i] >= sp[i+1]:
+            count += 1
+    try:
+        return ((sum(sp) / len(sp) / sp[0] * 100) - 100 + count / len(sp) * 100) / 100
+    except Exception:
+        return 0.0
+
 
 # Твоя аналитика должна брать на вход figi и возвращать 1 значение анализа, 
 # в main мы будем вызывать эту функцию, чтобы в database добавить в столбик эти данные. 
 # А уже после добавления для всех акций значения анализа, мы будем нормализировать данные.
-def price_analytics(lst: list):
-    count = 0
-    lst1 = lst.copy()
-    for i in range(len(lst) - 1):
-        if lst[i] >= lst[i+1]:
-            count += 1
-            
-    return {
-        'name': '',
-        'average': (sum(lst) / len(lst) / lst[0] * 100) - 100,
-        'trend': count / len(lst) * 100,
-    }
+
 
 # Нормализацию надо прописать будет в общем виде, чтобы потом ее можно было вызвать для любого столбика анализа, 
 # так чтобы значение варьировалось от 0 до 1. 
 # То есть на вход оно должно получать (Database, номер столбика/название для нормализации) и возвращать Database, но с нормализованным столбиком.
-def normalize_price(lst: list[dict]):
-    lst1 = []
-    for el in lst:
-        lst1.append((el['average'], el['trend'], el['name']))
-    lst1 = sorted(lst1, key=lambda x: (-x[1], -x[0], x[2]))
-    return lst1
+
 
 
 def first_day_analytic(year: int) -> int:
