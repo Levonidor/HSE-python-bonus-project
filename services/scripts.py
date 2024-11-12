@@ -6,6 +6,7 @@ from tinkoff.invest.utils import now
 from .token_import import TOKEN
 from time import sleep
 import time
+import numpy as np
 
 def make_shares_database() -> pd.DataFrame:
     with Client(TOKEN) as client:
@@ -59,6 +60,17 @@ def price_analytics(st) -> float():
         return ((sum(sp) / len(sp) / sp[0] * 100) - 100 + count / len(sp) * 100) / 100
     except Exception:
         return 0.0
+    
+
+
+def normalize(database: pd.DataFrame) -> pd.DataFrame:
+    normalized_database = database.copy()
+    columns_to_normalize = ["VOLUME_ANALYZE", "FIRST_DAY_ANALYZE", "PRICE_ANALYZE"]
+    
+    for column in columns_to_normalize:
+        normalized_database[column] = (normalized_database[column] - normalized_database[column].min()) / (normalized_database[column].max() - normalized_database[column].min())
+    
+    return normalized_database
 
 
 # Твоя аналитика должна брать на вход figi и возвращать 1 значение анализа, 
