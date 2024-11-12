@@ -41,7 +41,8 @@ if __name__ == '__main__':
         inf = database.loc[i][DatabaseId.FIGI]
         database.at[i,DatabaseNames.VOLUME_ANALYZE] = volume_analytic(inf)
         database.at[i,DatabaseNames.FIRST_DAY_ANALYZE] = first_day_analytic(database.loc[i][DatabaseId.FIRST_TRADE_YEAR])
-        database.at[i,DatabaseNames.PRICE_ANALYZE] = price_analytics(inf])
+        database.at[i,DatabaseNames.PRICE_ANALYZE] = price_analytics(inf)
+        # добавь код для вставки в БД вместо print(database)
         # выше заготовка, которая должна работать после того как ты зарефакторишь свой код
 
 
@@ -49,4 +50,4 @@ if __name__ == '__main__':
         # твоя задача - просто написать ее
         working_time.next()
     working_time.finish()
-    print(database)
+    print(normalize(database))
