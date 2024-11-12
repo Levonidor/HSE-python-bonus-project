@@ -1,3 +1,25 @@
 from enum import IntEnum, StrEnum
 
-TARGET_COLUMNS = ["figi", "ticker", "lot", "name", "sector",'first_1day_candle_date']
+TARGET_COLUMNS = ["FIGI", "TICKER", "LOT", "NAME", "SECTOR",'FIRST_TRADE_YEAR','PRICE_ANALYZE','VOLUME_ANALYZE','FIRST_DAY_ANALYZE']
+
+class DatabaseId(IntEnum):
+    FIGI = 0
+    TICKER = 1
+    LOT = 2
+    NAME = 3
+    SECTOR = 4
+    FIRST_TRADE_YEAR = 5
+    PRICE_ANALYZE = 6
+    VOLUME_ANALYZE = 7
+    FIRST_DAY_ANALYZE = 8
+
+class DatabaseNames(StrEnum):
+    FIGI = 'FIGI'
+    TICKER = 'TICKER'
+    LOT = 'LOT'
+    NAME = 'NAME'
+    SECTOR = 'SECTOR'
+    FIRST_TRADE_YEAR = 'FIRST_TRADE_YEAR'
+    PRICE_ANALYZE = 'PRICE_ANALYZE'
+    VOLUME_ANALYZE = 'VOLUME_ANALYZE'
+    FIRST_DAY_ANALYZE = 'FIRST_DAY_ANALYZE'
