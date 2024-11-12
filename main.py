@@ -38,9 +38,10 @@ if __name__ == '__main__':
     database = make_shares_database()
     working_time = Bar('Аналитика данных',max=len(database),suffix='%(percent).1f%% - %(eta)ds')
     for i in range(len(database)):
-        database.at[i,DatabaseNames.VOLUME_ANALYZE] = volume_analytic(database.loc[i][DatabaseId.FIGI])
+        inf = database.loc[i][DatabaseId.FIGI]
+        database.at[i,DatabaseNames.VOLUME_ANALYZE] = volume_analytic(inf)
         database.at[i,DatabaseNames.FIRST_DAY_ANALYZE] = first_day_analytic(database.loc[i][DatabaseId.FIRST_TRADE_YEAR])
-        # database.at[i,DatabaseNames.PRICE_ANALYZE] = price_analytics(database.loc[i][DatabaseId.FIGI])
+        database.at[i,DatabaseNames.PRICE_ANALYZE] = price_analytics(inf])
         # выше заготовка, которая должна работать после того как ты зарефакторишь свой код
 
 
