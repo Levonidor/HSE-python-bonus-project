@@ -11,6 +11,8 @@ if __name__ == '__main__':
     database = make_shares_database()
     working_time = Bar('Аналитика данных',max=len(database),suffix='%(percent).1f%% - %(eta)ds')
     for i in range(len(database)):
+        if i == 10:
+            break
         candle_data = candle_call(database.loc[i][DatabaseId.FIGI])
         database.at[i,DatabaseNames.VOLUME_ANALYZE] = volume_analytic(candle_data[CandeCallId.FOR_VOLUME_ANALYTIC])
         database.at[i,DatabaseNames.FIRST_DAY_ANALYZE] = first_day_analytic(database.loc[i][DatabaseId.FIRST_TRADE_YEAR])

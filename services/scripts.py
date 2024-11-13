@@ -1,4 +1,4 @@
-from .cfg import TARGET_COLUMNS, DatabaseId, DatabaseNames,CandeCallId, data
+from .cfg import TARGET_COLUMNS, DatabaseId, DatabaseNames,CandeCallId
 from datetime import timedelta
 import pandas as pd
 from tinkoff.invest import CandleInterval, Client, InstrumentStatus
@@ -83,12 +83,15 @@ def overall_analytic(database: pd.DataFrame) -> pd.DataFrame:
     database = normalize(database)
     for i in range(len(database)):
         database.at[i,DatabaseNames.OVERALL_ANALYZE] = database.loc[i][DatabaseId.VOLUME_ANALYZE] * 0.4 + database.loc[i][DatabaseId.PRICE_ANALYZE] * 0.5 + database.loc[i][DatabaseId.FIRST_DAY_ANALYZE] * 0.1
-    database = database.sort_values(by=DatabaseNames.OVERALL_ANALYZE, ascending=False)
+    database = database.sort_values(by=[str(DatabaseNames.OVERALL_ANALYZE)], ascending=False)
     return database
 
 
 def csv_file(database):
     import csv
+    import os
+    if os.path.exists('../data.csv'):
+        os.remove('../data.csv')
     with open('data.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(TARGET_COLUMNS)
