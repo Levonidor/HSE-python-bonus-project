@@ -83,7 +83,7 @@ def overall_analytic(database: pd.DataFrame) -> pd.DataFrame:
     database = normalize(database)
     for i in range(len(database)):
         database.at[i,DatabaseNames.OVERALL_ANALYZE] = database.loc[i][DatabaseId.VOLUME_ANALYZE] * 0.4 + database.loc[i][DatabaseId.PRICE_ANALYZE] * 0.5 + database.loc[i][DatabaseId.FIRST_DAY_ANALYZE] * 0.1
-        database = database.sort_values(by=database.columns[-1], ascending=False)
+    database = database.sort_values(by=DatabaseNames.OVERALL_ANALYZE, ascending=False)
     return database
 
 
