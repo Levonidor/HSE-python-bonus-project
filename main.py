@@ -17,4 +17,8 @@ if __name__ == '__main__':
         database.at[i,DatabaseNames.PRICE_ANALYZE] = price_analytics(inf)
         working_time.next()
     working_time.finish()
-    print(normalize(database))
+    database = normalize(database)
+    for i in range(len(database)):
+        database.at[i,DatabaseNames.OVERALL_ANALYZE] = database.loc[i][DatabaseId.VOLUME_ANALYZE] * 0.4 + database.loc[i][DatabaseId.PRICE_ANALYZE] * 0.5 + database.loc[i][DatabaseId.FIRST_DAY_ANALYZE] * 0.1
+    database = database.sort_values(by=database.columns[-1], ascending=False)
+    print(database)

@@ -15,7 +15,7 @@ def make_shares_database() -> pd.DataFrame:
     shares_dataframe = pd.DataFrame(columns=TARGET_COLUMNS)
     for i, share in enumerate(shares):
         shares_dataframe.loc[i] = pd.Series(
-            (share.figi, share.ticker, share.lot, share.name, share.sector,share.first_1day_candle_date.year,0,0,0), TARGET_COLUMNS
+            (share.figi, share.ticker, share.lot, share.name, share.sector,share.first_1day_candle_date.year,0,0,0,0), TARGET_COLUMNS
         )
     
     return shares_dataframe
@@ -57,7 +57,7 @@ def price_analytics(st) -> float():
         if sp[i] >= sp[i+1]:
             count += 1
     try:
-        return ((sum(sp) / len(sp) / sp[0] * 100) - 100 + count / len(sp) * 100) / 100
+        return (((sum(sp) / len(sp) / sp[0] * 100) - 100) * 0.2 + (count / len(sp) * 100) / 100) * 0.8
     except Exception:
         return 0.0
     
