@@ -90,8 +90,8 @@ def overall_analytic(database: pd.DataFrame) -> pd.DataFrame:
 def csv_file(database):
     import csv
     import os
-    if os.path.exists('../data.csv'):
-        os.remove('../data.csv')
+    if os.path.exists('./data.csv'):
+        os.remove('./data.csv')
     with open('data.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(TARGET_COLUMNS)
