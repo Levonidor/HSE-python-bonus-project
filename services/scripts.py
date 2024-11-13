@@ -1,4 +1,4 @@
-from .cfg import TARGET_COLUMNS
+from .cfg import TARGET_COLUMNS, DatabaseId, DatabaseNames,CandeCallId
 from datetime import timedelta
 import pandas as pd
 from tinkoff.invest import CandleInterval, Client, InstrumentStatus
@@ -7,6 +7,7 @@ from .token_import import TOKEN
 from time import sleep
 import time
 import numpy as np
+from functools import lru_cache
 
 def make_shares_database() -> pd.DataFrame:
     with Client(TOKEN) as client:
@@ -15,49 +16,52 @@ def make_shares_database() -> pd.DataFrame:
     shares_dataframe = pd.DataFrame(columns=TARGET_COLUMNS)
     for i, share in enumerate(shares):
         shares_dataframe.loc[i] = pd.Series(
-            (share.figi, share.ticker, share.lot, share.name, share.sector,share.first_1day_candle_date.year,0,0,0,0), TARGET_COLUMNS
+            (share.figi, share.ticker, share.lot, share.name, share.sector,share.first_1day_candle_date.year,0,0,0,0,0), TARGET_COLUMNS
         )
     
     return shares_dataframe
 
-def volume_analytic(figi_: str) -> float:
-    share_volume = []
+
+def candle_call(figi_: str)-> list[list,list]:
+    share_volumes = []
+    share_prices = []
+    shares_units_nano_prices = []
     with Client(TOKEN) as client:
-        sleep(0.5)
+        sleep(0.25)
         for candle in client.get_all_candles(
             figi=figi_,
             from_=now() - timedelta(days=(365*5)),
             interval=CandleInterval.CANDLE_INTERVAL_DAY,
         ):
-            share_volume.append(int(candle.volume))
-        period = []
-        all_periods = []
-        for volume in share_volume:
-            if len(period) == len(share_volume)//5:
-                all_periods.append(sum(period))
-                period = []
-            else:
-                period.append(volume)
-        procent_all_periods = []
-        for i in range(1,len(all_periods)):
-            procent_all_periods.append((all_periods[i]-all_periods[i-1])/(all_periods[i-1]/100))
+            share_volumes.append(int(candle.volume))
+            share_prices.append(candle.close.units)
+            shares_units_nano_prices.append(float(f"{candle.close.units}.{candle.close.nano}"))
+    return share_prices,share_volumes,shares_units_nano_prices
+
+def nowaday_price(share_prices: list) -> float:
+    return share_prices[-1]
+
+def volume_analytic(share_volume: list) -> float:
+    period = []
+    all_periods = []
+    for volume in share_volume:
+        if len(period) == len(share_volume)//5:
+            all_periods.append(sum(period))
+            period = []
+        else:
+            period.append(volume)
+    procent_all_periods = []
+    for i in range(1,len(all_periods)):
+        procent_all_periods.append((all_periods[i]-all_periods[i-1])/(all_periods[i-1]/100))
     return sum(procent_all_periods)/len(procent_all_periods)
 
-def price_analytics(st) -> float():
-    with Client(TOKEN) as client:
-        sp = []
-        for candle in client.get_all_candles(
-            figi= st,
-            from_=now() - timedelta(days=365 * 5),
-            interval=CandleInterval.CANDLE_INTERVAL_DAY,
-        ):
-            sp.append(candle.close.units)
+def price_analytics(share_prices: list) -> float:
     count = 0
-    for i in range(len(sp) - 1):
-        if sp[i] >= sp[i+1]:
+    for i in range(len(share_prices) - 1):
+        if share_prices[i] >= share_prices[i+1]:
             count += 1
     try:
-        return (((sum(sp) / len(sp) / sp[0] * 100) - 100) * 0.2 + (count / len(sp) * 100) / 100) * 0.8
+        return (((sum(share_prices) / len(share_prices) / share_prices[0] * 100) - 100) * 0.2 + (count / len(share_prices) * 100) / 100) * 0.8
     except Exception:
         return 0.0
     
@@ -74,3 +78,11 @@ def normalize(database: pd.DataFrame) -> pd.DataFrame:
 
 def first_day_analytic(year: int) -> int:
     return int(time.localtime().tm_year)-year
+
+def overall_analytic(database: pd.DataFrame) -> pd.DataFrame:
+    database = normalize(database)
+    for i in range(len(database)):
+        database.at[i,DatabaseNames.OVERALL_ANALYZE] = database.loc[i][DatabaseId.VOLUME_ANALYZE] * 0.4 + database.loc[i][DatabaseId.PRICE_ANALYZE] * 0.5 + database.loc[i][DatabaseId.FIRST_DAY_ANALYZE] * 0.1
+        database = database.sort_values(by=database.columns[-1], ascending=False)
+    return database
+
