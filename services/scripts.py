@@ -57,7 +57,7 @@ def volume_analytic(share_volume: list) -> float:
 
 def price_analytics(share_prices: list) -> float:
     count = 0
-    for i in range(len(share_prices) - 1):
+    for i in range(0, len(share_prices) - 1, -1):
         if share_prices[i] >= share_prices[i+1]:
             count += 1
     try:
