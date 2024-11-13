@@ -19,4 +19,4 @@ if __name__ == '__main__':
         working_time.next()
     working_time.finish()
     database = overall_analytic(database)
-    print(database)
+    csv_file(database)
