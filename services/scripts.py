@@ -27,10 +27,9 @@ def candle_call(figi_: str)-> list[list,list]:
     share_prices = []
     shares_units_nano_prices = []
     with Client(TOKEN) as client:
-        sleep(0.25)
         for candle in client.get_all_candles(
             figi=figi_,
-            from_=now() - timedelta(days=(365*5)),
+            from_=now() - timedelta(days=(365)),
             interval=CandleInterval.CANDLE_INTERVAL_DAY,
         ):
             share_volumes.append(int(candle.volume))
@@ -57,11 +56,11 @@ def volume_analytic(share_volume: list) -> float:
 
 def price_analytics(share_prices: list) -> float:
     count = 0
-    for i in range(0, len(share_prices) - 1, -1):
+    for i in range(0, len(share_prices) - 1):
         if share_prices[i] >= share_prices[i+1]:
             count += 1
     try:
-        return (((sum(share_prices) / len(share_prices) / share_prices[0] * 100) - 100) * 0.2 + (count / len(share_prices) * 100) / 100) * 0.8
+        return (((sum(share_prices) / len(share_prices) / share_prices[0] * 100) * 0.2 + (count / len(share_prices) * 100) / 100) * 0.8) / 2
     except Exception:
         return 0.0
     
@@ -82,12 +81,12 @@ def first_day_analytic(year: int) -> int:
 def overall_analytic(database: pd.DataFrame) -> pd.DataFrame:
     database = normalize(database)
     for i in range(len(database)):
-        database.at[i,DatabaseNames.OVERALL_ANALYZE] = database.loc[i][DatabaseId.VOLUME_ANALYZE] * 0.4 + database.loc[i][DatabaseId.PRICE_ANALYZE] * 0.5 + database.loc[i][DatabaseId.FIRST_DAY_ANALYZE] * 0.1
-    database = database.sort_values(by=[str(DatabaseNames.OVERALL_ANALYZE)], ascending=False)
+        database.at[i,DatabaseNames.OVERALL_ANALYZE] = database.loc[i][DatabaseId.VOLUME_ANALYZE] * 0.2 + database.loc[i][DatabaseId.PRICE_ANALYZE] * 0.7 + database.loc[i][DatabaseId.FIRST_DAY_ANALYZE] * 0.1
+    database = database.sort_values(by=DatabaseNames.OVERALL_ANALYZE, ascending=False)
     return database
 
 
-def csv_file(database):
+def csv_file(database: pd.DataFrame) -> None:
     import csv
     import os
     if os.path.exists('./data.csv'):
@@ -96,5 +95,5 @@ def csv_file(database):
         writer = csv.writer(csvfile)
         writer.writerow(TARGET_COLUMNS)
         for i in range(len(database)):
-            row = database.loc[i].to_list()
+            row = database.iloc[i].to_list()
             writer.writerow(row)
