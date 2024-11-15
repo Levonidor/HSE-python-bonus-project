@@ -50,8 +50,6 @@ def add_recommendated_share(recommendated_shares: pd.DataFrame, share: pd.Series
 
 def buy_shares(budget: int, relevant_parametr: float) -> list[pd.DataFrame,float]:
     database = read_csv(relevant_parametr)
-    print(database)
-    print(len(database))
     recommendated_shares = pd.DataFrame(columns=RECOMMEND_COLUMNS)
     now_budget = budget
     while True:
