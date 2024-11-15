@@ -48,7 +48,7 @@ def add_recommendated_share(recommendated_shares: pd.DataFrame, share: pd.Series
         recommendated_shares.loc[ind] = pd.Series((share[DatabaseNames.TICKER],amount+recommendated_shares.loc[ind][RecommendNames.AMOUNT],share[DatabaseNames.NOWADAY_PRICE],(amount+recommendated_shares.loc[ind][RecommendNames.AMOUNT])*share[DatabaseNames.NOWADAY_PRICE],share[DatabaseNames.NAME]),RECOMMEND_COLUMNS)
 
 
-def buy_shares(budget: int, relevant_parametr: float) -> [pd.DataFrame,float]:
+def buy_shares(budget: int, relevant_parametr: float) -> list[pd.DataFrame,float]:
     database = read_csv(relevant_parametr)
     print(database)
     print(len(database))
