@@ -66,9 +66,8 @@ def price_analytics(share_prices: list) -> float:
     
 
 
-def normalize(database: pd.DataFrame) -> pd.DataFrame:
+def normalize(database: pd.DataFrame,columns_to_normalize: list) -> pd.DataFrame:
     normalized_database = database.copy()
-    columns_to_normalize = ["VOLUME_ANALYZE", "FIRST_DAY_ANALYZE", "PRICE_ANALYZE"]
     
     for column in columns_to_normalize:
         normalized_database[column] = (normalized_database[column] - normalized_database[column].min()) / (normalized_database[column].max() - normalized_database[column].min())
@@ -79,19 +78,20 @@ def first_day_analytic(year: int) -> int:
     return int(time.localtime().tm_year)-year
 
 def overall_analytic(database: pd.DataFrame) -> pd.DataFrame:
-    database = normalize(database)
+    database = normalize(database,[DatabaseNames.VOLUME_ANALYZE,DatabaseNames.FIRST_DAY_ANALYZE,DatabaseNames.PRICE_ANALYZE])
     for i in range(len(database)):
         database.at[i,DatabaseNames.OVERALL_ANALYZE] = database.loc[i][DatabaseId.VOLUME_ANALYZE] * 0.2 + database.loc[i][DatabaseId.PRICE_ANALYZE] * 0.7 + database.loc[i][DatabaseId.FIRST_DAY_ANALYZE] * 0.1
     database = database.sort_values(by=DatabaseNames.OVERALL_ANALYZE, ascending=False)
+    database = normalize(database,[DatabaseNames.OVERALL_ANALYZE])
     return database
 
 
 def csv_file(database: pd.DataFrame) -> None:
     import csv
     import os
-    if os.path.exists('./data.csv'):
-        os.remove('./data.csv')
-    with open('data.csv', 'w', newline='') as csvfile:
+    if os.path.exists('./telegram/data.csv'):
+        os.remove('./telegram/data.csv')
+    with open('./telegram/data.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(TARGET_COLUMNS)
         for i in range(len(database)):
