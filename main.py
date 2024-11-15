@@ -27,6 +27,6 @@ if __name__ == '__main__':
     risk = float(input())
     #! risk value will be in [0,1] where 1 - only the one best share, 0 - even the worst ones
     #! in tg bot make i dunno some kind of buttons like 0.1 0.2 0.3 .... 0.9 1 to choose the risk
-    to_buy = buy_shares(3000000,0.5)
+    to_buy = buy_shares(our_budget,risk)
     print(to_buy[0])
     print(to_buy[1])
