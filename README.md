@@ -5,6 +5,7 @@ Dependencies:
     pandas
     python that supports IntEnum & StrEnum
     progress
+    matplotlib
 
 
 Frequently Asked Questions

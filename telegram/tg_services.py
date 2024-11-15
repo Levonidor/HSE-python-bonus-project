@@ -2,7 +2,7 @@ from datetime import timedelta
 import pandas as pd
 import numpy as np
 from .tg_cfg import *
-
+import matplotlib.pyplot as plt
 
 def read_csv(relevant_parametr: float) -> pd.DataFrame:
     database = pd.DataFrame(columns=TARGET_COLUMNS)
@@ -67,7 +67,10 @@ def buy_shares(budget: int, relevant_parametr: float) -> list[pd.DataFrame,float
             elif now_budget-database.loc[i][DatabaseNames.NOWADAY_PRICE] >= 0 and database.loc[i][DatabaseNames.NOWADAY_PRICE] < budget/100*30:
                 add_recommendated_share(recommendated_shares,database.loc[i], 1)
                 now_budget -= database.loc[i][DatabaseNames.NOWADAY_PRICE]
-        print(now_budget)
-
-    print(recommendated_shares)
+    make_vizualization(recommendated_shares)
     return [recommendated_shares,round(now_budget,2)]
+
+def make_vizualization(recommendated_shares: pd.DataFrame) -> None:
+    plt.figure(figsize=(15,15))
+    plt.pie(recommendated_shares[RecommendNames.TOTAL_PRICE],labels=recommendated_shares[RecommendNames.TICKER])
+    plt.savefig('./telegram/pie_shares.png')

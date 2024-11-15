@@ -7,6 +7,7 @@ from tinkoff.invest import CandleInterval, Client
 from tinkoff.invest.utils import now
 from progress.bar import Bar
 from telegram import *
+from telegram.tg_cfg import RECOMMEND_COLUMNS,RecommendNames
 
 # if __name__ == '__main__':
 #     database = make_shares_database()
@@ -23,8 +24,9 @@ from telegram import *
 #     csv_file(database)
 
 if __name__ == '__main__':
-    our_budget = int(input())
-    risk = float(input())
+    # our_budget = int(input())
+    # risk = float(input())
+    our_budget,risk = 300000,0.5
     #! risk value will be in [0,1] where 1 - only the one best share, 0 - even the worst ones
     #! in tg bot make i dunno some kind of buttons like 0.1 0.2 0.3 .... 0.9 1 to choose the risk
     to_buy = buy_shares(our_budget,risk)
