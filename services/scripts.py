@@ -91,7 +91,7 @@ def csv_file(database: pd.DataFrame) -> None:
     import os
     if os.path.exists('./telegram/data.csv'):
         os.remove('./telegram/data.csv')
-    with open('./telegram/data.csv', 'w', newline='') as csvfile:
+    with open('./telegram/data.csv', 'w', newline='',encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(TARGET_COLUMNS)
         for i in range(len(database)):

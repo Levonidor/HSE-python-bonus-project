@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def read_csv(relevant_parametr: float) -> pd.DataFrame:
     database = pd.DataFrame(columns=TARGET_COLUMNS)
-    with open('./telegram/data.csv','r') as csv:
+    with open('./telegram/data.csv','r',encoding='utf-8') as csv:
         minus_index = -1
         for i, info in enumerate(csv):
             if i == 0:
