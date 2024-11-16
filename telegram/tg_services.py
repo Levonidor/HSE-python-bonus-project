@@ -29,6 +29,11 @@ def dataframe_col_to_float(database: pd.DataFrame, columns: list) -> pd.DataFram
         database[col] = pd.Series(map(float,database[col]))
     return database
 
+def dataframe_col_to_int(database: pd.DataFrame, columns: list) -> pd.DataFrame:
+    for col in columns:
+        database[col] = pd.Series(map(int,database[col]))
+    return database
+
 def make_buying_database(database: pd.DataFrame, relevant_parametr: float) -> pd.DataFrame:
     buying_database = pd.DataFrame(columns=BUYER_COLUMNS)
     index = 0
@@ -68,6 +73,7 @@ def buy_shares(budget: int, relevant_parametr: float) -> list[pd.DataFrame,float
                 add_recommendated_share(recommendated_shares,database.loc[i], 1)
                 now_budget -= database.loc[i][DatabaseNames.NOWADAY_PRICE]
     make_vizualization(recommendated_shares)
+    recommendated_shares = dataframe_col_to_int(recommendated_shares,[RecommendNames.AMOUNT])
     return [recommendated_shares,round(now_budget,2)]
 
 def make_vizualization(recommendated_shares: pd.DataFrame) -> None:
@@ -111,7 +117,9 @@ async def start_handler(msg: Message, state: FSMContext):
     kb.button(text="0.9")
     kb.button(text="1")
     kb.adjust(5, 5)
-    await msg.answer("Для начала выбери насколько рискованную стратегию ты хочешь выбрать: где 0 - это самые волатильные акции, а 1 - самые стабильные", reply_markup=kb.as_markup(resize_keyboard=True))
+    await msg.answer("Для начала выбери насколько рискованную стратегию ты хочешь выбрать: где 0 - это самые волатильные акции, а 1 - только самая стабильная акция.")
+    await msg.answer("ВАЖНО! \nПри выборе значения отличного от 0.5 пакет акций может быть слишком рискованным!")
+    await msg.answer("#######\nРекомендованное значение: 0.5\n#######", reply_markup=kb.as_markup(resize_keyboard=True))
     await state.set_state(update_inf.risk)
     
     
