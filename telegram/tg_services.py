@@ -101,10 +101,14 @@ class update_inf(StatesGroup):
     risk = State()
     amount = State()
     
-    
 @router.message(Command("start"))
 async def start_handler(msg: Message, state: FSMContext):
     await msg.answer("Привет! Я твой личный ассистент по инвестициям")
+    await msg.answer("Для начала аналитики акций, воспользуйся командой /new")
+    
+    
+@router.message(Command("new"))
+async def start_handler(msg: Message, state: FSMContext):
     kb = ReplyKeyboardBuilder()
     kb.button(text="0.1")
     kb.button(text="0.2")
@@ -117,9 +121,8 @@ async def start_handler(msg: Message, state: FSMContext):
     kb.button(text="0.9")
     kb.button(text="1")
     kb.adjust(5, 5)
-    await msg.answer("Для начала выбери насколько рискованную стратегию ты хочешь выбрать: где 0 - это самые волатильные акции, а 1 - только самая стабильная акция.")
-    await msg.answer("ВАЖНО! \nПри выборе значения отличного от 0.5 пакет акций может быть слишком рискованным!")
-    await msg.answer("#######\nРекомендованное значение: 0.5\n#######", reply_markup=kb.as_markup(resize_keyboard=True))
+    await msg.answer("Выберите насколько рискованной стратегии вы хотите придерживаться: где 0 - это самые волатильные акции, а 1 - только самые стабильные акции.")
+    await msg.answer("ВАЖНО! \nПри выборе значения отличного от 0.5 пакет акций может быть слишком рискованным!", reply_markup=kb.as_markup(resize_keyboard=True))
     await state.set_state(update_inf.risk)
     
     
@@ -144,6 +147,11 @@ async def start_handler(msg: Message, state: FSMContext):
     data = await state.get_data()
     rub = data['amount']
     rub = rub.replace(' ', '')
+    while 1000 > int(rub):
+        await msg.answer('Я могу составить портфель из активов менее чем на 1000 рублей, пожалуйста, введите значение от 1000')
+        await state.update_data()
+        data = await state.get_data(rub=msg.text)
+        rub = data['rub']
     options.append(float(rub))
     await msg.answer("Подождите немного, происходит магия")
     to_buy = buy_shares(options[1],options[0])
@@ -151,6 +159,6 @@ async def start_handler(msg: Message, state: FSMContext):
     await msg.answer_document(document=FSInputFile('./telegram/stocks.csv'))
     await msg.answer_document(document=FSInputFile('./telegram/pie_shares.png'))
     await msg.answer('После проведенного анализа я составил портфель из девирсифицированных активов, основываясь на вашей желаемой стратегии')
-    await msg.answer('Желаю удачи, буду ждать вас, когда решите обновить портфель')
+    await msg.answer('Желаю удачи, буду ждать вас, когда решите обновить портфель, воспользуйтесь командой /new')
     options.clear()
     await state.clear()
