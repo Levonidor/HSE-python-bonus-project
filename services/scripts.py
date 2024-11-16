@@ -97,3 +97,14 @@ def csv_file(database: pd.DataFrame) -> None:
         for i in range(len(database)):
             row = database.iloc[i].to_list()
             writer.writerow(row)
+            
+            
+def check_date(a, b) -> bool:
+    for i in range(2, 0, -1):
+        if a[i] <= b[i]:
+            continue
+        else:
+            break
+    if i == 0:
+        return True
+    return False

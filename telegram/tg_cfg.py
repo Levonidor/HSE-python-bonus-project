@@ -1,8 +1,22 @@
 from enum import IntEnum, StrEnum
+import asyncio
+import logging
+from aiogram import Bot, Dispatcher
+from aiogram.enums.parse_mode import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.types import *
+from aiogram import Router
+from aiogram.filters import Command
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
+from collections import defaultdict, deque
+
 
 TARGET_COLUMNS = ["FIGI", "TICKER", "LOT", "NAME", "SECTOR",'FIRST_TRADE_YEAR','PRICE_ANALYZE','VOLUME_ANALYZE','FIRST_DAY_ANALYZE','OVERALL_ANALYZE','NOWADAY_PRICE']
 BUYER_COLUMNS = ['NAME', "TICKER", 'OVERALL_ANALYZE','NOWADAY_PRICE']
 RECOMMEND_COLUMNS = ['TICKER','AMOUNT','PRICE_PER_SHARE','TOTAL_PRICE','NAME']
+BOT_TOKEN = '8129798931:AAGCenKK1mqo_ThJIRhRaaKx2_21UfNvEX4'
 
 class DatabaseId(IntEnum):
     FIGI = 0
