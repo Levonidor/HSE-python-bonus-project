@@ -1,47 +1,59 @@
 from services import *
 from services.token_import import TOKEN
-from services.cfg import DatabaseId,DatabaseNames,CandeCallId
+from services.cfg import DatabaseId, DatabaseNames, CandeCallId
 import os
 from datetime import timedelta
 from tinkoff.invest import CandleInterval, Client
 from tinkoff.invest.utils import now
 from progress.bar import Bar
 from telegram import *
-from telegram.tg_cfg import RECOMMEND_COLUMNS,RecommendNames
+from telegram.tg_cfg import RECOMMEND_COLUMNS, RecommendNames
 from datetime import datetime
 
 
 async def main() -> None:
-        bot = Bot(token=BOT_TOKEN)
-        dp = Dispatcher(storage=MemoryStorage())
-        dp.include_router(router)
-        await bot.delete_webhook(drop_pending_updates=True)
-        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
-        
+    bot = Bot(token=BOT_TOKEN)
+    dp = Dispatcher(storage=MemoryStorage())
+    dp.include_router(router)
+    await bot.delete_webhook(drop_pending_updates=True)
+    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
         if date_time:
             pass
     except Exception:
-        date_time = '00.00.0000'
+        date_time = "00.00.0000"
     temporary = datetime.now().strftime("%d.%m.%Y")
-    if check_date(date_time.split('.'), temporary.split('.')):
+    if check_date(date_time.split("."), temporary.split(".")) or not os.path.exists(
+        "./telegram/data.csv"
+    ):
         date_time = temporary
         database = make_shares_database()
-        working_time = Bar('Аналитика данных',max=len(database),suffix='%(percent).1f%% - %(eta)ds')
+        working_time = Bar(
+            "Аналитика данных", max=len(database), suffix="%(percent).1f%% - %(eta)ds"
+        )
         for i in range(len(database)):
             candle_data = candle_call(database.loc[i][DatabaseId.FIGI])
-            database.at[i,DatabaseNames.VOLUME_ANALYZE] = volume_analytic(candle_data[CandeCallId.FOR_VOLUME_ANALYTIC])
-            database.at[i,DatabaseNames.FIRST_DAY_ANALYZE] = first_day_analytic(database.loc[i][DatabaseId.FIRST_TRADE_YEAR])
-            database.at[i,DatabaseNames.PRICE_ANALYZE] = price_analytics(candle_data[CandeCallId.FOR_PRICE_ANALYTIC])
-            database.at[i,DatabaseNames.NOWADAY_PRICE] = nowaday_price(candle_data[CandeCallId.FOR_NOWADAY_PRICE])
+            database.at[i, DatabaseNames.VOLUME_ANALYZE] = volume_analytic(
+                candle_data[CandeCallId.FOR_VOLUME_ANALYTIC]
+            )
+            database.at[i, DatabaseNames.FIRST_DAY_ANALYZE] = first_day_analytic(
+                database.loc[i][DatabaseId.FIRST_TRADE_YEAR]
+            )
+            database.at[i, DatabaseNames.PRICE_ANALYZE] = price_analytics(
+                candle_data[CandeCallId.FOR_PRICE_ANALYTIC]
+            )
+            database.at[i, DatabaseNames.NOWADAY_PRICE] = nowaday_price(
+                candle_data[CandeCallId.FOR_NOWADAY_PRICE]
+            )
             working_time.next()
         working_time.finish()
         database = overall_analytic(database)
         csv_file(database)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
