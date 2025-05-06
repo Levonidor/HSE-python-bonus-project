@@ -6,9 +6,3 @@ Dependencies:
     python that supports IntEnum & StrEnum
     progress
     matplotlib
-
-
-Frequently Asked Questions
-
-How does it work?
-    I don't fucking know.
