@@ -3,12 +3,17 @@ from datetime import timedelta
 import pandas as pd
 from tinkoff.invest import CandleInterval, Client, InstrumentStatus
 from tinkoff.invest.utils import now
-from .token_import import TOKEN
 from time import sleep
 import time
 import numpy as np
 from functools import lru_cache
 
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+TOKEN = os.getenv("TOKEN")
 
 def make_shares_database() -> pd.DataFrame:
     with Client(TOKEN) as client:
